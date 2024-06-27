@@ -54,20 +54,20 @@
     ```c
     /* _PyGenObject_HEAD defines the initial segment of generator
        and coroutine objects. */
-    #define _PyGenObject_HEAD(prefix)                                           
-        PyObject_HEAD                                                           
-        /* Note: gi_frame can be NULL if the generator is "finished" */         
-        PyFrameObject *prefix##_frame;                                          
-        /* True if generator is being executed. */                              
-        char prefix##_running;                                                  
-        /* The code object backing the generator */                             
-        PyObject *prefix##_code;                                                
-        /* List of weak reference. */                                           
-        PyObject *prefix##_weakreflist;                                         
-        /* Name of the generator. */                                            
-        PyObject *prefix##_name;                                                
-        /* Qualified name of the generator. */                                  
-        PyObject *prefix##_qualname;                                            
+    #define _PyGenObject_HEAD(prefix)                                           \
+        PyObject_HEAD                                                           \
+        /* Note: gi_frame can be NULL if the generator is "finished" */         \
+        PyFrameObject *prefix##_frame;                                          \
+        /* True if generator is being executed. */                              \
+        char prefix##_running;                                                  \
+        /* The code object backing the generator */                             \
+        PyObject *prefix##_code;                                                \
+        /* List of weak reference. */                                           \
+        PyObject *prefix##_weakreflist;                                         \
+        /* Name of the generator. */                                            \
+        PyObject *prefix##_name;                                                \
+        /* Qualified name of the generator. */                                  \
+        PyObject *prefix##_qualname;                                            \
         _PyErr_StackItem prefix##_exc_state;
     ```
     
@@ -376,7 +376,7 @@
         }
         ```
         
-    1. 현재 스레드 상태를 가져옴
+    - 1. 현재 스레드 상태를 가져옴
     2. 제너레이터 객체로부터 프레임 객체를 가져옴
         
         ```c
@@ -384,7 +384,7 @@
         PyFrameObject *f = gen->gi_frame;
         ```
         
-    3. 제너레이터가 실행 중이면 `ValueError`를 발생시킴
+    - 3. 제너레이터가 실행 중이면 `ValueError`를 발생시킴
         
         ```c
         if (gen->gi_running) {
@@ -400,7 +400,7 @@
         }
         ```
         
-    4. 제너레이터 안의 프레임이 스택의 최상위에 위치해 있을 경우 처리
+    - 4. 제너레이터 안의 프레임이 스택의 최상위에 위치해 있을 경우 처리
         
         ```c
         if (f == NULL || f->f_stacktop == NULL) {
@@ -426,7 +426,7 @@
         }
         ```
         
-    5. 프레임이 막 실행되기 시작해서 마지막 명령이 아직 -1이고 프레임이 코루틴이나 비동기 제너레이터인 경우 None 이외의 값을 인자로 넘기면 예외 발생
+    - 5. 프레임이 막 실행되기 시작해서 마지막 명령이 아직 -1이고 프레임이 코루틴이나 비동기 제너레이터인 경우 None 이외의 값을 인자로 넘기면 예외 발생
     6. 인자를 프레임의 값 스택에 추가
         
         ```c
@@ -452,7 +452,7 @@
         }
         ```
         
-    7. 프레임의 `f_back` 필드는 반환값을 전송할 호출자이기 때문에 이 필드에는 스레드의 현재 프레임이 설정됨 → 제너레이터를 생성한 곳이 아닌 제너레이터를 호출한 곳에 값이 반환됨
+    - 7. 프레임의 `f_back` 필드는 반환값을 전송할 호출자이기 때문에 이 필드에는 스레드의 현재 프레임이 설정됨 → 제너레이터를 생성한 곳이 아닌 제너레이터를 호출한 곳에 값이 반환됨
         
         ```c
         /* Generators always return to their most recent caller, not
@@ -462,7 +462,7 @@
         f->f_back = tstate->frame;
         ```
         
-    8. 제너레이터가 실행 중임을 표시 
+    - 8. 제너레이터가 실행 중임을 표시 
     9. 제너레이터의 마지막 예외가 스레드 상태의 마지막 예외로 복사됨
     10. 스레드 상태의 예외 정보가 제너레이터의 예외 정보를 가리키도록 설정됨 → 호출자가 제너레이터 실행부 주변에 중단점을 추가할 때 스택트레이스가 제너레이터를 통과해 문제가 되는 코드가 명확해짐
         
@@ -472,7 +472,7 @@
         tstate->exc_info = &gen->gi_exc_state;
         ```
         
-    11. `Python/ceval.c`의 평가 루프에서 제너레이터 안의 프레임을 실행하고 값을 반환
+    - 11. `Python/ceval.c`의 평가 루프에서 제너레이터 안의 프레임을 실행하고 값을 반환
     12. 스레드 상태의 마지막 예외 정보가 프레임 호출 전의 값으로 복구됨
     13. 제너레이터가 실행 중이 아니라고 표시됨
         
@@ -483,7 +483,7 @@
         gen->gi_running = 0;
         ```
         
-    14. 반환값에 따라 예외를 발생시킴
+    - 14. 반환값에 따라 예외를 발생시킴
     15. 결과가 `__next__()` 호출자에 반환됨
         
         ```c

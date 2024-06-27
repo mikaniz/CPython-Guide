@@ -489,23 +489,23 @@ document.write(`
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Include/genobject.h</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">_PyGenObject_HEAD(prefix)</span></code></p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>/* _PyGenObject_HEAD defines the initial segment of generator
-   and coroutine objects. */
-#define _PyGenObject_HEAD(prefix)                                           
-    PyObject_HEAD                                                           
-    /* Note: gi_frame can be NULL if the generator is &quot;finished&quot; */         
-    PyFrameObject *prefix##_frame;                                          
-    /* True if generator is being executed. */                              
-    char prefix##_running;                                                  
-    /* The code object backing the generator */                             
-    PyObject *prefix##_code;                                                
-    /* List of weak reference. */                                           
-    PyObject *prefix##_weakreflist;                                         
-    /* Name of the generator. */                                            
-    PyObject *prefix##_name;                                                
-    /* Qualified name of the generator. */                                  
-    PyObject *prefix##_qualname;                                            
-    _PyErr_StackItem prefix##_exc_state;
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* _PyGenObject_HEAD defines the initial segment of generator</span>
+<span class="cm">   and coroutine objects. */</span>
+<span class="cp">#define _PyGenObject_HEAD(prefix)                                           \</span>
+<span class="cp">    PyObject_HEAD                                                           \</span>
+<span class="cp">    </span><span class="cm">/* Note: gi_frame can be NULL if the generator is &quot;finished&quot; */</span><span class="cp">         \</span>
+<span class="cp">    PyFrameObject *prefix##_frame;                                          \</span>
+<span class="cp">    </span><span class="cm">/* True if generator is being executed. */</span><span class="cp">                              \</span>
+<span class="cp">    char prefix##_running;                                                  \</span>
+<span class="cp">    </span><span class="cm">/* The code object backing the generator */</span><span class="cp">                             \</span>
+<span class="cp">    PyObject *prefix##_code;                                                \</span>
+<span class="cp">    </span><span class="cm">/* List of weak reference. */</span><span class="cp">                                           \</span>
+<span class="cp">    PyObject *prefix##_weakreflist;                                         \</span>
+<span class="cp">    </span><span class="cm">/* Name of the generator. */</span><span class="cp">                                            \</span>
+<span class="cp">    PyObject *prefix##_name;                                                \</span>
+<span class="cp">    </span><span class="cm">/* Qualified name of the generator. */</span><span class="cp">                                  \</span>
+<span class="cp">    PyObject *prefix##_qualname;                                            \</span>
+<span class="cp">    _PyErr_StackItem prefix##_exc_state;</span>
 </pre></div>
 </div>
 <table class="table">
@@ -875,16 +875,23 @@ document.write(`
 </pre></div>
 </div>
 </li>
-</ul>
-<ol class="arabic">
+<li><ol class="arabic simple">
 <li><p>현재 스레드 상태를 가져옴</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic" start="2">
 <li><p>제너레이터 객체로부터 프레임 객체를 가져옴</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyThreadState</span><span class="w"> </span><span class="o">*</span><span class="n">tstate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_PyThreadState_GET</span><span class="p">();</span>
 <span class="n">PyFrameObject</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_frame</span><span class="p">;</span>
 </pre></div>
 </div>
 </li>
-<li><p>제너레이터가 실행 중이면 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>를 발생시킴</p>
+</ol>
+<ul>
+<li><ol class="arabic simple" start="3">
+<li><p>제너레이터가 실행 중이면 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>를 발생시킴</p></li>
+</ol>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_running</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;generator already executing&quot;</span><span class="p">;</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PyCoro_CheckExact</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
@@ -899,7 +906,9 @@ document.write(`
 </pre></div>
 </div>
 </li>
-<li><p>제너레이터 안의 프레임이 스택의 최상위에 위치해 있을 경우 처리</p>
+<li><ol class="arabic simple" start="4">
+<li><p>제너레이터 안의 프레임이 스택의 최상위에 위치해 있을 경우 처리</p></li>
+</ol>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_stacktop</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PyCoro_CheckExact</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">closing</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="cm">/* `gen` is an exhausted coroutine: raise an error,</span>
@@ -924,7 +933,12 @@ document.write(`
 </pre></div>
 </div>
 </li>
+<li><ol class="arabic simple" start="5">
 <li><p>프레임이 막 실행되기 시작해서 마지막 명령이 아직 -1이고 프레임이 코루틴이나 비동기 제너레이터인 경우 None 이외의 값을 인자로 넘기면 예외 발생</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic" start="6">
 <li><p>인자를 프레임의 값 스택에 추가</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_lasti</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">Py_None</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -949,7 +963,11 @@ document.write(`
 </pre></div>
 </div>
 </li>
-<li><p>프레임의 <code class="docutils literal notranslate"><span class="pre">f_back</span></code> 필드는 반환값을 전송할 호출자이기 때문에 이 필드에는 스레드의 현재 프레임이 설정됨 → 제너레이터를 생성한 곳이 아닌 제너레이터를 호출한 곳에 값이 반환됨</p>
+</ol>
+<ul>
+<li><ol class="arabic simple" start="7">
+<li><p>프레임의 <code class="docutils literal notranslate"><span class="pre">f_back</span></code> 필드는 반환값을 전송할 호출자이기 때문에 이 필드에는 스레드의 현재 프레임이 설정됨 → 제너레이터를 생성한 곳이 아닌 제너레이터를 호출한 곳에 값이 반환됨</p></li>
+</ol>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Generators always return to their most recent caller, not</span>
 <span class="cm"> * necessarily their creator. */</span>
 <span class="n">Py_XINCREF</span><span class="p">(</span><span class="n">tstate</span><span class="o">-&gt;</span><span class="n">frame</span><span class="p">);</span>
@@ -958,7 +976,12 @@ document.write(`
 </pre></div>
 </div>
 </li>
+<li><ol class="arabic simple" start="8">
 <li><p>제너레이터가 실행 중임을 표시</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic" start="9">
 <li><p>제너레이터의 마지막 예외가 스레드 상태의 마지막 예외로 복사됨</p></li>
 <li><p>스레드 상태의 예외 정보가 제너레이터의 예외 정보를 가리키도록 설정됨 → 호출자가 제너레이터 실행부 주변에 중단점을 추가할 때 스택트레이스가 제너레이터를 통과해 문제가 되는 코드가 명확해짐</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">gen</span><span class="o">-&gt;</span><span class="n">gi_running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
@@ -967,7 +990,14 @@ document.write(`
 </pre></div>
 </div>
 </li>
+</ol>
+<ul class="simple">
+<li><ol class="arabic simple" start="11">
 <li><p><code class="docutils literal notranslate"><span class="pre">Python/ceval.c</span></code>의 평가 루프에서 제너레이터 안의 프레임을 실행하고 값을 반환</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic" start="12">
 <li><p>스레드 상태의 마지막 예외 정보가 프레임 호출 전의 값으로 복구됨</p></li>
 <li><p>제너레이터가 실행 중이 아니라고 표시됨</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_PyEval_EvalFrame</span><span class="p">(</span><span class="n">tstate</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">exc</span><span class="p">);</span>
@@ -977,7 +1007,14 @@ document.write(`
 </pre></div>
 </div>
 </li>
+</ol>
+<ul class="simple">
+<li><ol class="arabic simple" start="14">
 <li><p>반환값에 따라 예외를 발생시킴</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic" start="15">
 <li><p>결과가 <code class="docutils literal notranslate"><span class="pre">__next__()</span></code> 호출자에 반환됨</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* If the generator just returned (as opposed to yielding), signal</span>
 <span class="cm"> * that the generator is exhausted. */</span>
